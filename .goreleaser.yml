@@ -17,3 +17,17 @@ archives:
     replacements:
       darwin: Darwin
       amd64: x86_64
+
+brews:
+  - ids: [darwin-build]
+    tap:
+      owner: echocrow
+      name: homebrew-tap
+    folder: Formula
+
+    homepage: '{{ replace .GitURL ".git" "" }}'
+    description: Paste basic or template-based keys and passwords.
+    license: MIT
+
+    test: |
+      system "#{bin}/pasteword", "-version"
