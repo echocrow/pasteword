@@ -3,6 +3,7 @@ module github.com/echocrow/pasteword
 go 1.17
 
 require (
+	github.com/deanishe/awgo v0.29.1
 	golang.design/x/clipboard v0.5.3
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 )
