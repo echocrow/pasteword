@@ -1,14 +1,8 @@
 # pasteword
 
-> Paste basic or template-based keys and passwords.
+Retrieve passwords by temporarily putting them into the clipboard for easy copy-pasting.
 
-Retrieve passwords and temporarily put them into the clipboard for easy copy-pasting.
-
-On macOS, `pasteword` uses Keychain under the hood to store and retrieve keys and passwords.
-
-`pasteword` optionally support reusable password templates with variable placeholders.
-
-_**Note:** Reuse passwords or password templates at your own risk. Reusing passwords (entirely or partially) is not recommended._
+On macOS, `pasteword` uses Keychain under the hood to store and retrieve passwords.
 
 
 ## Installation
@@ -24,27 +18,23 @@ brew upgrade echocrow/tap/pasteword
 
 ## Examples
 
-### Main password
-Set password:
+Set main password:
 ```sh
 pasteword -set
-# …followed by password prompt (pr pipe in password via stdin).
+# …followed by password prompt (also accepts stdin).
 ```
-Retrieve & copy pass:
+Retrieve & copy main pass:
 ```sh
 pasteword
-# …puts the previously stored password into the clipboard for three seconds.
+# …copies the previously stored main password into the clipboard for three seconds.
 ```
-
-### Named password with placeholders
-
-Set named password template:
+Set named password:
 ```sh
-pasteword -k=mypass -set
-# …followed by password prompt; enter e.g. "foo-{}.bar-{}.fizz-{}".
+pasteword -set mypass
+# …followed by password prompt (also accepts stdin).
 ```
-Retrieve & copy named pass with concrete values:
+Retrieve named password for ten seconds:
 ```sh
-pasteword -k=mypass -ttl=10s ton zar ure
-# …copies "foo-ton.bar-zar.fizz-ure"" into clipboard for ten seconds.
+pasteword -ttl=10s mypass
+# …copies "mypass" password into clipboard for ten seconds.
 ```

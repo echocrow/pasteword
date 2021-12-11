@@ -14,11 +14,9 @@ import (
 var (
 	getVersion bool
 
-	pwName      = ""
-	placeholder = "{}"
-	ttl         = time.Second * 3
-
 	doSet bool
+
+	ttl = time.Second * 3
 )
 
 var cli = flag.CommandLine
@@ -26,30 +24,36 @@ var cli = flag.CommandLine
 func init() {
 	flag.BoolVar(&getVersion, "version", getVersion, "print current version")
 
-	flag.StringVar(&pwName, "k", pwName, "shorthand for -key")
-	flag.StringVar(&pwName, "key", pwName, "name of the key")
-
-	flag.StringVar(&placeholder, "placeholder", placeholder, "password template placeholder for dynamic variables")
-
-	flag.DurationVar(&ttl, "ttl", ttl, "time until the copied password is erased")
-
 	flag.BoolVar(&doSet, "set", doSet, "set a password or password template (using an empty password deletes the entry)")
 
+	flag.DurationVar(&ttl, "ttl", ttl, "time until the copied password is erased from the clipboard again")
+
+	orgUsage := flag.Usage
 	flag.Usage = func() {
-		fmt.Fprintf(cli.Output(), "Paste basic or template-based keys and passwords .\n\n")
+		print := func(format string, a ...interface{}) {
+			fmt.Fprintf(cli.Output(), format, a...)
+		}
 
-		fmt.Fprintf(cli.Output(), "Usage of %s:\n\n", os.Args[0])
+		print("Temporarily copy password for easy pasting.\n\n")
 
-		fmt.Fprintf(cli.Output(), "%s\n", os.Args[0])
-		fmt.Fprintf(cli.Output(), "\tRead password\n\n")
+		print("%s [-flags] [NAME]\n\n", os.Args[0])
 
-		fmt.Fprintf(cli.Output(), "%s [VAR, ...]\n", os.Args[0])
-		fmt.Fprintf(cli.Output(), "\tRead password and replace placeholders with VARs\n\n")
+		orgUsage()
+		print("\n")
 
-		fmt.Fprintf(cli.Output(), "%s -set\n", os.Args[0])
-		fmt.Fprintf(cli.Output(), "\tSet password from prompt or stdin\n\n")
+		print("Examples:\n")
 
-		flag.PrintDefaults()
+		print("  %s\n", os.Args[0])
+		print("\tread main password\n")
+
+		print("  %s -set\n", os.Args[0])
+		print("\tset password from prompt or stdin\n")
+
+		print("  %s NAME\n", os.Args[0])
+		print("\tread password \"NAME\"\n")
+
+		print("  %s -set NAME\n", os.Args[0])
+		print("\tset password \"NAME\" from prompt or stdin\n")
 	}
 }
 
@@ -71,20 +75,20 @@ func Execute(
 }
 
 func run() error {
-	if doSet {
-		if flag.NArg() != 0 {
-			return errors.New("expected no arguments when setting template")
-		}
+	if flag.NArg() > 1 {
+		return errors.New("expected zero or one arguments")
+	}
+	name := flag.Arg(0)
 
-		tpl, err := clio.ReadPw(os.Stdin, cli.Output())
+	if doSet {
+		pw, err := clio.ReadPw(os.Stdin, cli.Output())
 		if err != nil {
 			return err
 		}
-
-		return pasteword.Write(pwName, tpl)
+		return pasteword.Write(name, pw)
 	}
 
-	pw, err := pasteword.Read(pwName, placeholder, flag.Args()...)
+	pw, err := pasteword.Read(name)
 	if err != nil {
 		return err
 	}
